@@ -44,92 +44,122 @@ public class OperationTree extends HashMap<String, OperationTree> {
 				 * quebra a linha atual por |
 				 */
 				String[] split = s.split("\\|");
-				/**
-				 * elemento restriction
-				 */
-				String restrictions = split[0];
-				/**
-				 * model key
-				 */
-				String modelField = split[1];
-				/**
-				 * model key operator
-				 */
-				String modelFieldPredicate = split[2];
-				/**
-				 * model key value
-				 */
-				String modelFieldValue = split[3];
-				/**
-				 * split restrictions splited by ;
-				 */
-				String[] splitedrestrictions = restrictions.split(";");
-				/**
-				 * current node
-				 */
-				int currentNodeIndex = 0;
-				/**
-				 * Initialize root
-				 * e define currentNode para root
-				 */
-				if (rootNode==null) {
+				
+				if(split.length == 3) {
+					/**
+					 * model key
+					 */
+					String modelField = split[0];
+					/**
+					 * model key operator
+					 */
+					String modelFieldPredicate = split[1];
+					/**
+					 * model key value
+					 */
+					String modelFieldValue = split[2];
+					
+					if (rootNode==null) {
 						rootNode = new OperationTree();
-				}
-				currentNode = rootNode;
-				/**
-				 * Scan operators of current parameter
-				 */
-				while (currentNodeIndex < splitedrestrictions.length) {
-					/**
-					 * level de chave atual na linha
-					 */
-					String nodeKey = splitedrestrictions[currentNodeIndex];
-					char opChar = nodeKey.toLowerCase().charAt(0);
-					/**
-					 * operator sendo lido
-					 */
-					OperationTree operationTree = null;
-					/**
-					 * se a chave atual nao for encontrada
-					 */
-					if (currentNode.get(nodeKey)==null) {
-						/**
-						 * cria elemento novo caso nao exista
-						 */
-						operationTree = new OperationTree();
-						/**
-						 * definir operacao logica
-						 */
-						if (opChar=='o')
-							operationTree.setOperation(new Or());
-						else
-							operationTree.setOperation(new And());
-						/**
-						 * adiciona elemento em currentLevel
-						 */
-						currentNode.put(nodeKey, operationTree);
-						/**
-						 * define o node adicionado como atual
-						 */
-						operationTree.setParent(currentNode);
-					} else {
-						/**
-						 * recuperar elemento caso exista
-						 */
-						operationTree = currentNode.get(nodeKey);
+						rootNode.setOperation(new And());
 					}
+					currentNode = rootNode;
+					OperationTree fnode = new OperationTree();
+					fnode.setField(modelField);
+					fnode.setPredicate(modelFieldPredicate);
+					fnode.setValue(modelFieldValue);
+					currentNode.put("node"+seq, fnode);
+					seq++;
+				} else if(split.length == 4) {
 					/**
-					 * definir no atual para o que foi pegue pela chave
+					 * elemento restriction
 					 */
-					currentNode = operationTree;
-					currentNodeIndex++;
+					String restrictions = split[0];
+					/**
+					 * model key
+					 */
+					String modelField = split[1];
+					/**
+					 * model key operator
+					 */
+					String modelFieldPredicate = split[2];
+					/**
+					 * model key value
+					 */
+					String modelFieldValue = split[3];
+					/**
+					 * split restrictions splited by ;
+					 */
+					String[] splitedrestrictions = restrictions.split(";");
+					/**
+					 * current node
+					 */
+					int currentNodeIndex = 0;
+					/**
+					 * Initialize root
+					 * e define currentNode para root
+					 */
+					if (rootNode==null) {
+							rootNode = new OperationTree();
+							rootNode.setOperation(new And());
+					}
+					currentNode = rootNode;
+					/**
+					 * Scan operators of current parameter
+					 */
+					while (currentNodeIndex < splitedrestrictions.length) {
+						/**
+						 * level de chave atual na linha
+						 */
+						String nodeKey = splitedrestrictions[currentNodeIndex];
+						char opChar = nodeKey.toLowerCase().charAt(0);
+						/**
+						 * operator sendo lido
+						 */
+						OperationTree operationTree = null;
+						/**
+						 * se a chave atual nao for encontrada
+						 */
+						if (currentNode.get(nodeKey)==null) {
+							/**
+							 * cria elemento novo caso nao exista
+							 */
+							operationTree = new OperationTree();
+							/**
+							 * definir operacao logica
+							 */
+							if (opChar=='o')
+								operationTree.setOperation(new Or());
+							else
+								operationTree.setOperation(new And());
+							/**
+							 * adiciona elemento em currentLevel
+							 */
+							currentNode.put(nodeKey, operationTree);
+							/**
+							 * define o node adicionado como atual
+							 */
+							operationTree.setParent(currentNode);
+						} else {
+							/**
+							 * recuperar elemento caso exista
+							 */
+							operationTree = currentNode.get(nodeKey);
+						}
+						/**
+						 * definir no atual para o que foi pegue pela chave
+						 */
+						currentNode = operationTree;
+						currentNodeIndex++;
+					}
+					OperationTree fnode = new OperationTree();
+					fnode.setField(modelField);
+					fnode.setPredicate(modelFieldPredicate);
+					fnode.setValue(modelFieldValue);
+					currentNode.put("node"+seq, fnode);
+					seq++;
 				}
-				OperationTree fnode = new OperationTree();
-				fnode.setField(modelField);
-				fnode.setPredicate(modelFieldPredicate);
-				fnode.setValue(modelFieldValue);
-				currentNode.put("node"+seq, fnode);
-				seq++;
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -140,24 +170,37 @@ public class OperationTree extends HashMap<String, OperationTree> {
 	public static void main(String[] args) {
 		
 		List<String> parameters = new ArrayList<String>();
-		parameters.add("a8;a1;o1|id|eq|10");
-		parameters.add("a8;a1;o1|id|eq|20");
-		parameters.add("a8;a1;o1|id|eq|30");
-		parameters.add("a8;o2;a2|cidade|eq|fortaleza");
-		parameters.add("a8;o2;a2|uf|eq|ce");
-		parameters.add("a8;o2;a2|pais|eq|br");
-		parameters.add("a8;o2;a3|cidade|eq|sobral");
-		parameters.add("a8;o2;a3|uf|eq|ce");
-		parameters.add("a8;o2;a3|pais|eq|br");
+//		parameters.add("a8;a1;o1|id|eq|10");
+//		parameters.add("a8;a1;o1|id|eq|20");
+//		parameters.add("a8;a1;o1|id|eq|30");
+//		parameters.add("a8;o2;a2|cidade|eq|fortaleza");
+//		parameters.add("a8;o2;a2|uf|eq|ce");
+//		parameters.add("a8;o2;a2|pais|eq|br");
+//		parameters.add("a8;o2;a3|cidade|eq|sobral");
+//		parameters.add("a8;o2;a3|uf|eq|ce");
+//		parameters.add("a8;o2;a3|pais|eq|br");
+		parameters.add("id|eq|10");
+		parameters.add("id|eq|20");
 		
 		
 		OperationTree tree = OperationTree.createTree(parameters); // generate tree
-		for (OperationTree op : tree.get("a8").get("a1").get("o1").getParent().get("o1").values()) {
-			System.out.println(" -> "+op.getOperation());
-		}
-		OperationTree op = tree.get("a8");
-		System.out.println(" -> "+op.getOperation());
+		recursivePredicates(tree, null);
 		
+	}
+	
+	private static void recursivePredicates(OperationTree node, String op) {
+		if (node.getValue()!=null) {
+			System.out.println(op+" -> "+node.getValue());
+		}
+		if (node.getOperation() instanceof And) {
+			for (OperationTree subnode : node.values()) {
+				recursivePredicates(subnode, " and ");
+			}
+		} else {
+			for (OperationTree subnode : node.values()) {
+				recursivePredicates(subnode, " or ");
+			}
+		}
 	}
 
 	public void setValue(String value) {
