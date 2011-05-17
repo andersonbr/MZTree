@@ -112,6 +112,7 @@ public class MZQL {
 	}
 	
 	public static void main(String[] args) {
+
 		List<String> parameters = new ArrayList<String>();
 		parameters.add("e8;e1;o1|id|eq|10");
 		parameters.add("e8;e1;o1|id|eq|20");
